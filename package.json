@@ -15,7 +15,6 @@
     "verify": "pnpm prettier && pnpm lint",
     "verify:fix": "pnpm prettier:fix && pnpm lint:fix",
     "fixdev": "git checkout master && git pull && git checkout dev && git rebase master",
-    "clean": "rm -rf dist node_modules storybook-static",
     "prepare": "husky install",
     "pretty-staged": "pretty-quick --staged"
   },

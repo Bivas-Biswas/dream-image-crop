@@ -26,7 +26,7 @@ specifiers:
   eslint-plugin-standard: ^5.0.0
   husky: ^7.0.4
   next: 12.1.0
-  postcss: '>=8.4.0 <9.0.0'
+  postcss: ^8.4.8
   postcss-preset-env: ^7.4.2
   prettier: ^2.5.1
   prettier-config-standard: ^5.0.0
