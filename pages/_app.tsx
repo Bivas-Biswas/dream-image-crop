@@ -1,8 +1,20 @@
 import '../styles/index.css'
-import type { AppProps } from 'next/app'
+import HeadManager from '../components/Theme/HeadManger/HeadManger'
+import { AppProps } from '../interfaces'
+import { Layout } from '../components'
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+import withTwindApp from '@twind/next/shim/app'
+import twindConfig from './../config/twind.config'
+
+const App = ({ Component, pageProps }: AppProps) => {
+  return (
+    <>
+      <HeadManager {...(Component.seo || {})} />
+      <Layout {...(Component.layout || {})}>
+        <Component {...pageProps} />
+      </Layout>
+    </>
+  )
 }
 
-export default MyApp
+export default withTwindApp(twindConfig, App)
