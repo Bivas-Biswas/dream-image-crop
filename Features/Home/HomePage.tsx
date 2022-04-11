@@ -8,7 +8,7 @@ const HomePage = () => {
       <HeaderSection />
       <div>
         <div className="px-3 pb-1 sm:px-14 sm:pb-3">Main Section</div>
-        <div className="mx-2 lg:mx-0">
+        <div className="mx-2 lg:mx-0 space-y-5">
           {projectItemstData.map((item) => (
             <ProjectCard key={item.projectId} {...item} />
           ))}

@@ -77,6 +77,7 @@ const Header = () => {
               key={item.id}
               target="_blank"
               rel="noreferrer noopener"
+              className="transition ease-in-out sm:hover:-translate-y-1 sm:hover:scale-110 duration-300"
             >
               {<item.icon className="w-7 h-7 sm:w-9 sm:h-9" />}
             </Link>
