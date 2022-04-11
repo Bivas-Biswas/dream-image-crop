@@ -1,12 +1,18 @@
 import React from 'react'
-import { HeaderSection } from './components'
+import { HeaderSection, ProjectCard } from './components'
+import { projectItemstData } from './data'
 
 const HomePage = () => {
   return (
-    <div className="">
+    <div>
       <HeaderSection />
       <div>
-        <div className="px-8 py-3">Main Section</div>
+        <div className="px-3 pb-1 sm:px-14 sm:pb-3">Main Section</div>
+        <div className="mx-2 lg:mx-0">
+          {projectItemstData.map((item) => (
+            <ProjectCard key={item.projectId} {...item} />
+          ))}
+        </div>
       </div>
     </div>
   )

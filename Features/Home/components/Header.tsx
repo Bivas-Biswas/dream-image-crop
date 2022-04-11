@@ -40,7 +40,7 @@ const IconsList: IconsType = [
     id: 4,
     label: 'gmail',
     icon: GmailIcon,
-    link: 'https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=bivasbiswas1999@gmail.com',
+    link: 'mailto:bivasbiswas1999@gmail.com',
   },
   {
     id: 5,
@@ -51,8 +51,8 @@ const IconsList: IconsType = [
 ]
 const Header = () => {
   return (
-    <div className="bg-gray-100">
-      <div className="px-3 pb-1 sm:px-8 sm:pb-3">
+    <div className="bg-gray-100 text-gray-900">
+      <div className="px-3 pb-1 sm:px-14 sm:pb-3">
         <div>
           <p className="text-5xl sm:text-5xl">
             Hello, 👋 I’m{' '}

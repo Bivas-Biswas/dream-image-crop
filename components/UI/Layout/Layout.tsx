@@ -45,7 +45,7 @@ const Layout = ({
 
         <div
           className={tw(
-            'flex-1 flex flex-col max-w-6xl w-full mx-auto',
+            'flex-1 flex flex-col max-w-5xl w-full mx-auto',
             pageClassName
           )}
         >

@@ -7,14 +7,14 @@ const Link = ({
   href,
   children,
   className = '',
-  activeClassName = 'bg-blue-100',
+  activeClassName = '',
   ...props
 }: HTMLAnchorProps &
   React.PropsWithChildren<LinkProps> & { activeClassName?: string }) => {
   const router = useRouter()
 
   const isActive = router.route === href
-  const finalClassName = className + (isActive ? `${activeClassName}` : '')
+  const finalClassName = className + (isActive ? ` ${activeClassName}` : '')
 
   return (
     <NextLink href={href || ''}>
