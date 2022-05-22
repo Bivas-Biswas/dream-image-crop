@@ -1,11 +1,13 @@
+import Link from 'components/Misc/Link'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
+
 import {
   GitHubLogoIcon,
   HeartFilledIcon,
   HeartIcon,
 } from '@radix-ui/react-icons'
-import Link from 'components/Misc/Link'
-import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+
 import { projectItemType } from '../HomePage.types'
 
 export type ProjectCardProps = projectItemType
