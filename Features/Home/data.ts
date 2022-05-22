@@ -115,7 +115,7 @@ export const projectItemstData: projectItemsType = [
 //   id: 1,
 //   projectName: '',
 //   content: ``,
-//`  projectHostLink: '',
+// `  projectHostLink: '',
 //   projectLogo: '',
 //   github_repo_link: '',
 //   likes: 0,

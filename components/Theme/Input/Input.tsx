@@ -48,29 +48,22 @@ export type InputCustomProps = {
 
 export type InputProps = HTMLInputProps & InputStyleProps & InputCustomProps
 
-export const Input = React.forwardRef<HTMLInputElement,
-  HTMLInputProps & InputStyleProps & InputCustomProps>((props: InputProps, ref) => {
+export const Input = (props: InputProps) => {
   const {
     id,
     label,
     info,
     icon,
-    // eslint-disable-next-line react/prop-types
     roundness = 'default',
     hideLabel,
     message,
-    // eslint-disable-next-line react/prop-types
     type = 'text',
-    // eslint-disable-next-line react/prop-types
     textSize = 'regular',
-    // eslint-disable-next-line react/prop-types
     state = 'default',
     wrapperClassName,
-    // eslint-disable-next-line react/prop-types
     className,
     labelClassName,
     onChangeValue,
-    // eslint-disable-next-line react/prop-types
     onChange,
     ...rest
   } = props
@@ -79,29 +72,28 @@ export const Input = React.forwardRef<HTMLInputElement,
 
   return (
     <div className={wrapperClassName}>
-      <div className='flex justify-between mx-1'>
+      <div className="flex justify-between mx-1">
         <label
           htmlFor={id}
           className={tw(
             classNames(hideLabel ? 'sr-only' : 'block text-sm font-medium'),
-            labelClassName,
+            labelClassName
           )}
         >
           {label}
         </label>
 
-        {info && <span className='text-sm text-gray-400'>{info}</span>}
+        {info && <span className="text-sm text-gray-400">{info}</span>}
       </div>
 
-      <div className='mt-1 relative rounded-md shadow-sm'>
+      <div className="mt-1 relative rounded-md shadow-sm">
         {icon && (
-          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             {icon({})}
           </div>
         )}
 
         <input
-          ref={ref}
           type={type}
           id={id}
           name={id}
@@ -120,8 +112,8 @@ export const Input = React.forwardRef<HTMLInputElement,
             messageState === 'error'
               ? 'text-red-500'
               : messageState === 'success'
-                ? 'text-green-500'
-                : 'text-white'
+              ? 'text-green-500'
+              : 'text-white'
           }`}
         >
           {message}
@@ -129,7 +121,7 @@ export const Input = React.forwardRef<HTMLInputElement,
       )}
     </div>
   )
-})
+}
 
 Input.displayName = 'Input'
 

@@ -1,11 +1,9 @@
 import React, { Fragment } from 'react'
-import Link from '../../Misc/Link'
+
 import { Menu, Transition } from '@headlessui/react'
-import {
-  Cross1Icon,
-  CrossCircledIcon,
-  HamburgerMenuIcon,
-} from '@radix-ui/react-icons'
+import { Cross1Icon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+
+import Link from '../../Misc/Link'
 
 type NavItemType = {
   id: number
@@ -81,7 +79,7 @@ const Navbar = () => {
               >
                 <div className="flex justify-end pt-4">
                   <Menu.Item>
-                    {({ active }) => (
+                    {() => (
                       <button className={'px-3 focus:outline-none'}>
                         <Cross1Icon className="h-9 w-9" />
                       </button>
@@ -91,7 +89,7 @@ const Navbar = () => {
                 <div className="py-5 shadow-xl border-b rounded-b-lg flex flex-col">
                   {NavItems.map((item) => (
                     <Menu.Item key={item.id}>
-                      {({ active }) => (
+                      {() => (
                         <Link
                           href={item.to}
                           activeClassName="bg-gray-200 text-gray-900"

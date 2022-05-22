@@ -1,4 +1,5 @@
 import React from 'react'
+
 import Link from '../../../components/Misc/Link'
 import {
   GithubIcon,
@@ -11,6 +12,7 @@ import {
 type IconType = {
   id: number
   label: string
+  // eslint-disable-next-line no-undef,no-unused-vars
   icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element
   link: string
 }

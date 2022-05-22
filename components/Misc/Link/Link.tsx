@@ -1,6 +1,7 @@
 import NextLink, { LinkProps } from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
+
 import { HTMLAnchorProps } from '../../../interfaces'
 
 const Link = ({

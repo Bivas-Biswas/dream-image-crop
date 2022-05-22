@@ -32,7 +32,7 @@ const Layout = ({
         {!hideNavbar && <Navbar />}
 
         <NextProgress
-          color='#8080FF'
+          color="#8080FF"
           startPosition={0.3}
           stopDelayMs={0}
           height={3}

@@ -45,7 +45,7 @@ const ImageCropEle = () => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader()
       reader.addEventListener('load', () =>
-        setImgSrc(reader.result?.toString() || ''),
+        setImgSrc(reader.result?.toString() || '')
       )
       reader.readAsDataURL(e.target.files[0])
       setUploadFiles(e.target.files)
@@ -67,15 +67,15 @@ const ImageCropEle = () => {
           previewCanvasRef.current,
           completedCrop,
           scale,
-          rotate,
+          rotate
         )
         setPreviewSrc(
-          await imgPreview(imgRef.current, completedCrop, scale, rotate),
+          await imgPreview(imgRef.current, completedCrop, scale, rotate)
         )
       }
     },
     100,
-    [completedCrop, scale, rotate],
+    [completedCrop, scale, rotate]
   )
 
   const handleToggleAspectClick = () => {
@@ -130,7 +130,7 @@ const ImageCropEle = () => {
         previewCanvasRef.current,
         cropPx,
         scale,
-        rotate,
+        rotate
       )
       setPreviewSrc(await imgPreview(imgRef.current, cropPx, scale, rotate))
     }
@@ -173,16 +173,16 @@ const ImageCropEle = () => {
 
     if (!imgFolder) return
 
-    imageData.forEach(function(url) {
+    imageData.forEach(function (url) {
       // loading a file and add it in a zip file
-      JSZipUtils.getBinaryContent(url.imgUrl, function(err: any, data: any) {
+      JSZipUtils.getBinaryContent(url.imgUrl, function (err: any, data: any) {
         if (err) {
           throw err // or handle the error
         }
         count++
         imgFolder.file(`frame-${url.id}.jpeg`, data, { binary: true })
         if (count === imageData.length) {
-          zip.generateAsync({ type: 'blob' }).then(function(content) {
+          zip.generateAsync({ type: 'blob' }).then(function (content) {
             saveAs(content, zipFilename)
           })
         }
@@ -191,9 +191,9 @@ const ImageCropEle = () => {
   }
 
   return (
-    <div className='w-full'>
-      <div className='flex flex-col absolute right-8 space-y-2 max-h-full px-2'>
-        <div className='space-x-4'>
+    <div className="w-full">
+      <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2">
+        <div className="space-x-4">
           <Button
             className={'w-max'}
             onClick={() => downloadAsZip(allCropImage)}
@@ -210,18 +210,18 @@ const ImageCropEle = () => {
             Clear All
           </Button>
         </div>
-        <div className='flex flex-col-reverse space-y-2 overflow-y-scroll'>
+        <div className="flex flex-col-reverse space-y-2 overflow-y-scroll">
           {allCropImage?.length !== 0 &&
             allCropImage.map((img) => (
-              <img src={img.imgUrl} key={img.id} alt='' />
+              <img src={img.imgUrl} key={img.id} alt="" />
             ))}
         </div>
       </div>
-      <div className='flex space-y-4 flex-col my-4'>
-        <input type='file' accept='image/*' onChange={onSelectFile} />
-        <div className='flex space-x-10 flex-row'>
-          <div className='flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8'>
-            <p className='text-center underline text-xl'>Image Settings</p>
+      <div className="flex space-y-4 flex-col my-4">
+        <input type="file" accept="image/*" onChange={onSelectFile} />
+        <div className="flex space-x-10 flex-row">
+          <div className="flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8">
+            <p className="text-center underline text-xl">Image Settings</p>
             <div>
               <Input
                 label={`Scale : ${scale}`}
@@ -229,23 +229,23 @@ const ImageCropEle = () => {
                 max={10}
                 step={0.5}
                 type={'range'}
-                id='scale-input'
+                id="scale-input"
                 value={scale}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) => setScale(Number(_value))}
               />
             </div>
             <div>
               <Input
-                id='rotate-input'
+                id="rotate-input"
                 value={rotate}
                 min={0}
                 max={360}
                 step={5}
                 type={'range'}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) =>
                   setRotate(Math.min(180, Math.max(-180, Number(_value))))
                 }
@@ -253,31 +253,31 @@ const ImageCropEle = () => {
               />
             </div>
           </div>
-          <div className='flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8'>
-            <p className='text-center underline text-xl'>Crop Settings</p>
-            <div className='flex flex-row justify-between'>
+          <div className="flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8">
+            <p className="text-center underline text-xl">Crop Settings</p>
+            <div className="flex flex-row justify-between">
               <Input
                 label={'Add Move-X :'}
-                id='Move-X'
+                id="Move-X"
                 value={String(cropPxSettings?.x)}
                 type={'number'}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) => {
                   cropPxSettings &&
-                  setCropPxSettings({
-                    ...cropPxSettings,
-                    x: parseInt(_value),
-                  })
+                    setCropPxSettings({
+                      ...cropPxSettings,
+                      x: parseInt(_value),
+                    })
                 }}
               />
               <Input
                 label={'Add Move-Y :'}
-                id='Move-Y'
+                id="Move-Y"
                 type={'number'}
                 value={String(cropPxSettings?.y)}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) => {
                   console.log(_value)
                   if (_value === '') {
@@ -294,14 +294,14 @@ const ImageCropEle = () => {
                 }}
               />
             </div>
-            <div className='flex flex-row justify-between'>
+            <div className="flex flex-row justify-between">
               <Input
                 label={'Width :'}
-                id='Width'
+                id="Width"
                 type={'number'}
                 value={String(cropPxSettings?.width)}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) =>
                   cropPxSettings &&
                   setCropPxSettings({
@@ -312,11 +312,11 @@ const ImageCropEle = () => {
               />
               <Input
                 label={'Height :'}
-                id='Height'
+                id="Height"
                 type={'number'}
                 value={String(cropPxSettings?.height)}
                 disabled={!imgSrc}
-                className='px-2 py-1 border-gray-400 border-2'
+                className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) =>
                   cropPxSettings &&
                   setCropPxSettings({
@@ -327,7 +327,7 @@ const ImageCropEle = () => {
               />
             </div>
             <Button
-              className='w-max'
+              className="w-max"
               disabled={!imgSrc}
               onClick={handleSaveCropSettings}
             >
@@ -335,8 +335,8 @@ const ImageCropEle = () => {
             </Button>
           </div>
         </div>
-        <div className='flex flex-row space-x-4 relative'>
-          <div className='flex flex-row space-x-4'>
+        <div className="flex flex-row space-x-4 relative">
+          <div className="flex flex-row space-x-4">
             <Button
               onClick={handleAddImage}
               variant={'secondary'}
@@ -360,7 +360,7 @@ const ImageCropEle = () => {
             </Button>
           </div>
           {cropPx && (
-            <div className='absolute right-2 flex flex-col space-y-2'>
+            <div className="absolute right-2 flex flex-col space-y-2">
               <div>
                 width: {cropPx?.width.toFixed(2)}, height:
                 {cropPx?.height.toFixed(2)}
@@ -386,9 +386,9 @@ const ImageCropEle = () => {
         >
           <img
             ref={imgRef}
-            alt='Crop me'
+            alt="Crop me"
             src={imgSrc}
-            className='w-full'
+            className="w-full"
             style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
           />
         </ReactCrop>

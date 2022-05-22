@@ -19,7 +19,6 @@ type LikeStateType = {
 
 const ProjectCard = (props: ProjectCardProps) => {
   const {
-    projectId,
     projectName,
     content,
     projectLogo,
