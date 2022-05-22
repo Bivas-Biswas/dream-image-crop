@@ -1,6 +1,7 @@
 import NextProgress from 'nextjs-progressbar'
 import React from 'react'
 import { tw } from 'twind'
+
 import { HTMLDivProps } from '../../../interfaces'
 import { Footer } from '../Footer'
 import Navbar from '../Navbar'
@@ -9,8 +10,6 @@ export type LayoutProps = {
   children?: React.ReactNode | React.ReactNode[]
   hideFooter?: boolean
   hideNavbar?: boolean
-  hideNotification?: boolean
-  hideEmailVerificationNotification?: boolean
   pageClassName?: string
   /**
    * If height of this page should be equal to screen height
@@ -22,8 +21,6 @@ const Layout = ({
   children,
   hideFooter,
   hideNavbar,
-  hideNotification = true,
-  hideEmailVerificationNotification,
   className,
   pageClassName,
   screenHeight,
@@ -35,12 +32,13 @@ const Layout = ({
         {!hideNavbar && <Navbar />}
 
         <NextProgress
-          // Primary color
-          color="#8080FF"
+          color='#8080FF'
           startPosition={0.3}
           stopDelayMs={0}
           height={3}
           showOnShallow={true}
+          nonce={''}
+          options={null}
         />
 
         <div

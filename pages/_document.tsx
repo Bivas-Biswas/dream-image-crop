@@ -8,6 +8,7 @@ import Document, {
 import React from 'react'
 
 import withTwindDocument from '@twind/next/shim/document'
+
 import twindConfig from './../config/twind.config'
 
 class MyDocument extends Document {
