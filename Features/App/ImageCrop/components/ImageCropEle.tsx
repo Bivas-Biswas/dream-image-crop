@@ -227,7 +227,7 @@ const ImageCropEle = () => {
   return (
     <div className="w-full">
       {allCropImage?.length !== 0 && (
-        <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2">
+        <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2 bg-white rounded py-2 shadow-lg">
           <div className="space-x-4">
             <Button
               className={'w-max'}
@@ -245,7 +245,7 @@ const ImageCropEle = () => {
               Clear All
             </Button>
           </div>
-          <div className="flex flex-col space-y-2 max-h-[400px] overflow-y-scroll">
+          <div className="flex flex-col space-y-2 max-h-[90%] overflow-y-scroll">
             {allCropImage.map((img) => (
               <img src={img.imgUrl} key={img.id} alt="" />
             ))}
@@ -432,7 +432,12 @@ const ImageCropEle = () => {
         </ReactCrop>
       )}
       {/* {previewSrc && <img alt="Crop preview" src={previewSrc} />} */}
-      <canvas ref={previewCanvasRef} />
+      {imgSrc && (
+        <>
+          <p className="mb-2 text-lg">Crop Preview:</p>
+          <canvas ref={previewCanvasRef} />
+        </>
+      )}
     </div>
   )
 }
