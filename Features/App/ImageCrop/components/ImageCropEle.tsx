@@ -50,6 +50,25 @@ const ImageCropEle = () => {
       reader.readAsDataURL(e.target.files[0])
       setUploadFiles(e.target.files)
       setAllCropImage([])
+      setCropPxSettings({
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        unit: 'px',
+      })
+    }
+  }
+
+  const handleImageLoad = () => {
+    if (imgRef.current) {
+      setCropPx({
+        x: 0,
+        unit: 'px',
+        y: 0,
+        width: imgRef.current.width / 2,
+        height: imgRef.current.height / 2,
+      })
     }
   }
 
@@ -81,15 +100,22 @@ const ImageCropEle = () => {
   const handleToggleAspectClick = () => {
     if (aspect) {
       setAspect(undefined)
-    } else if (imgRef.current) {
+    } else {
       setAspect(16 / 9)
     }
   }
 
   const handleSelectCrop = () => {
-    if (previewSrc && cropPx) {
+    if (previewSrc && cropPx && imgRef.current) {
       setImgSrc(previewSrc)
       setAspect(undefined)
+      setCropPx({
+        ...cropPx,
+        x: 0,
+        y: 0,
+        width: imgRef.current.width / 2,
+        height: imgRef.current.height / 2,
+      })
     }
   }
 
@@ -104,18 +130,12 @@ const ImageCropEle = () => {
       cropPx.x + cropPxSettings.x >= 0 &&
       cropPx.y + cropPxSettings.y >= 0
     ) {
-      if (cropPxSettings.width > 0) {
+      if (cropPxSettings.width > 0 || cropPxSettings.height > 0) {
         setCropPx({
           ...cropPx,
           x: cropPx.x + cropPxSettings.x,
           y: cropPx.y + cropPxSettings.y,
           width: cropPxSettings.width,
-        })
-      } else if (cropPxSettings.height > 0) {
-        setCropPx({
-          ...cropPx,
-          x: cropPx.x + cropPxSettings.x,
-          y: cropPx.y + cropPxSettings.y,
           height: cropPxSettings.height,
         })
       } else {
@@ -388,6 +408,7 @@ const ImageCropEle = () => {
             ref={imgRef}
             alt="Crop me"
             src={imgSrc}
+            onLoad={handleImageLoad}
             className="w-full"
             style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
           />
