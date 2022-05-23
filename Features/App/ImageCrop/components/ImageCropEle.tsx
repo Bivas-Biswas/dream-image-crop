@@ -2,7 +2,7 @@ import saveAs from 'file-saver'
 import JSZip from 'jszip'
 // @ts-ignore
 import JSZipUtils from 'jszip-utils'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactCrop, { PixelCrop } from 'react-image-crop'
 
 import { Button } from '../../../../components/Theme/Button'
@@ -39,6 +39,18 @@ const ImageCropEle = () => {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null)
   const [allCropImage, setAllCropImage] = useState<allImage[]>([])
   const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
+  const scrollEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const scrollToBottom = () => {
+      scrollEndRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest',
+      })
+    }
+    scrollToBottom()
+  }, [allCropImage, setAllCropImage])
 
   // console.log(crop)
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,6 +119,8 @@ const ImageCropEle = () => {
 
   const handleSelectCrop = () => {
     if (previewSrc && cropPx && imgRef.current) {
+      setScale(1)
+      setRotate(0)
       setImgSrc(previewSrc)
       setAspect(undefined)
       setCropPx({
@@ -212,31 +226,34 @@ const ImageCropEle = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2">
-        <div className="space-x-4">
-          <Button
-            className={'w-max'}
-            onClick={() => downloadAsZip(allCropImage)}
-            disabled={allCropImage.length === 0}
-          >
-            Download All
-          </Button>
-          <Button
-            className={'w-max'}
-            variant={'secondary'}
-            onClick={() => setAllCropImage([])}
-            disabled={allCropImage.length === 0}
-          >
-            Clear All
-          </Button>
-        </div>
-        <div className="flex flex-col-reverse space-y-2 overflow-y-scroll">
-          {allCropImage?.length !== 0 &&
-            allCropImage.map((img) => (
+      {allCropImage?.length !== 0 && (
+        <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2">
+          <div className="space-x-4">
+            <Button
+              className={'w-max'}
+              onClick={() => downloadAsZip(allCropImage)}
+              disabled={allCropImage.length === 0}
+            >
+              Download All
+            </Button>
+            <Button
+              className={'w-max'}
+              variant={'secondary'}
+              onClick={() => setAllCropImage([])}
+              disabled={allCropImage.length === 0}
+            >
+              Clear All
+            </Button>
+          </div>
+          <div className="flex flex-col space-y-2 max-h-[400px] overflow-y-scroll">
+            {allCropImage.map((img) => (
               <img src={img.imgUrl} key={img.id} alt="" />
             ))}
+            <div ref={scrollEndRef} className="block w-2" />
+          </div>
         </div>
-      </div>
+      )}
+
       <div className="flex space-y-4 flex-col my-4">
         <input type="file" accept="image/*" onChange={onSelectFile} />
         <div className="flex space-x-10 flex-row">
@@ -247,7 +264,7 @@ const ImageCropEle = () => {
                 label={`Scale : ${scale}`}
                 min={-10}
                 max={10}
-                step={0.5}
+                step={0.1}
                 type={'range'}
                 id="scale-input"
                 value={scale}
@@ -260,8 +277,8 @@ const ImageCropEle = () => {
               <Input
                 id="rotate-input"
                 value={rotate}
-                min={0}
-                max={360}
+                min={-180}
+                max={180}
                 step={5}
                 type={'range'}
                 disabled={!imgSrc}
