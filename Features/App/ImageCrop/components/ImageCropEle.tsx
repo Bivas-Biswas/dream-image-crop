@@ -19,19 +19,22 @@ export type allImage = {
   width: number
   height: number
 }
+const initialCropPxSettings: PixelCrop = {
+  x: 0,
+  y: 0,
+  width: 0,
+  height: 0,
+  unit: 'px',
+}
 
 const ImageCropEle = () => {
   const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const [cropPx, setCropPx] = useState<PixelCrop>()
-  const [cropPxSettings, setCropPxSettings] = useState<PixelCrop>({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    unit: 'px',
-  })
+  const [cropPxSettings, setCropPxSettings] = useState<PixelCrop>(
+    initialCropPxSettings
+  )
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
   const [scale, setScale] = useState(1)
   const [rotate, setRotate] = useState(0)
@@ -40,6 +43,7 @@ const ImageCropEle = () => {
   const [allCropImage, setAllCropImage] = useState<allImage[]>([])
   const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
   const scrollEndRef = useRef<HTMLDivElement | null>(null)
+  const inputFileRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     const scrollToBottom = () => {
@@ -224,6 +228,17 @@ const ImageCropEle = () => {
     })
   }
 
+  const handleReset = () => {
+    if (inputFileRef.current) inputFileRef.current.value = ''
+    setImgSrc('')
+    setUploadFiles(null)
+    setCropPxSettings(initialCropPxSettings)
+    setAllCropImage([])
+    setScale(1)
+    setRotate(0)
+    setAspect(undefined)
+  }
+
   return (
     <div className="w-full">
       {allCropImage?.length !== 0 && (
@@ -255,7 +270,22 @@ const ImageCropEle = () => {
       )}
 
       <div className="flex space-y-4 flex-col my-4">
-        <input type="file" accept="image/*" onChange={onSelectFile} />
+        <div className="space-x-3">
+          <input
+            ref={inputFileRef}
+            type="file"
+            accept="image/*"
+            onChange={onSelectFile}
+          />
+          <Button
+            variant="secondary"
+            disabled={!imgSrc}
+            className="px-5 py-1.5"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+        </div>
         <div className="flex space-x-10 flex-row">
           <div className="flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8">
             <p className="text-center underline text-xl">Image Settings</p>
@@ -399,11 +429,11 @@ const ImageCropEle = () => {
           {cropPx && (
             <div className="absolute right-2 flex flex-col space-y-2">
               <div>
-                width: {cropPx?.width.toFixed(2)}, height:
+                Width: {cropPx?.width.toFixed(2)}, Height:
                 {cropPx?.height.toFixed(2)}
               </div>
               <div>
-                x: {cropPx?.x.toFixed(2)}, y: {cropPx?.y.toFixed(2)}
+                X: {cropPx?.x.toFixed(2)}, Y: {cropPx?.y.toFixed(2)}
               </div>
             </div>
           )}
@@ -411,31 +441,34 @@ const ImageCropEle = () => {
       </div>
 
       {Boolean(imgSrc) && (
-        <ReactCrop
-          ruleOfThirds
-          crop={cropPx}
-          onChange={(pxCrop) => {
-            setCropPx(pxCrop)
-            // setCropPxSettings(pxCrop)
-          }}
-          onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
-        >
-          <img
-            ref={imgRef}
-            alt="Crop me"
-            src={imgSrc}
-            onLoad={handleImageLoad}
-            className="w-full"
-            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-          />
-        </ReactCrop>
+        <div className="p-4 shadow-xl rounded-md w-[fit-content] mt-4">
+          <ReactCrop
+            ruleOfThirds
+            crop={cropPx}
+            onChange={(pxCrop) => {
+              setCropPx(pxCrop)
+              // setCropPxSettings(pxCrop)
+              setCompletedCrop(pxCrop)
+            }}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+          >
+            <img
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              onLoad={handleImageLoad}
+              className="w-full"
+              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+            />
+          </ReactCrop>
+        </div>
       )}
       {/* {previewSrc && <img alt="Crop preview" src={previewSrc} />} */}
       {imgSrc && (
         <>
-          <p className="mb-2 text-lg">Crop Preview:</p>
-          <canvas ref={previewCanvasRef} />
+          <p className="mx-2 my-4 text-lg">Crop Preview:</p>
+          <canvas ref={previewCanvasRef} className="p-4 shadow-xl rounded-md" />
         </>
       )}
     </div>
