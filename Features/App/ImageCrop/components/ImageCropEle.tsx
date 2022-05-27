@@ -4,16 +4,27 @@ import JSZip from 'jszip'
 import JSZipUtils from 'jszip-utils'
 import React, { useEffect, useRef, useState } from 'react'
 import ReactCrop, { PixelCrop } from 'react-image-crop'
+import ScrollToBottom from 'react-scroll-to-bottom'
+import { tw } from 'twind/style'
 
+import {
+  Cross2Icon,
+  FileTextIcon,
+  ListBulletIcon,
+  UploadIcon,
+} from '@radix-ui/react-icons'
+
+import Link from '../../../../components/Misc/Link'
 import { Button } from '../../../../components/Theme/Button'
 import { Input } from '../../../../components/Theme/Input'
 import useDebounceEffect from '../../../../hooks/useDebounceEffect'
+import { textTruncate } from '../../../../utils'
+import formatBytes from '../../../../utils/formatBytes'
 import { canvasPreview } from '../utils/canvasPreview'
 import { imgPreview } from '../utils/imgPreview'
 
 export type allImage = {
   imgUrl: string
-  id: number
   x: number
   y: number
   width: number
@@ -42,8 +53,9 @@ const ImageCropEle = () => {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null)
   const [allCropImage, setAllCropImage] = useState<allImage[]>([])
   const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
-  const scrollEndRef = useRef<HTMLDivElement | null>(null)
-  const inputFileRef = useRef<HTMLInputElement | null>(null)
+  const scrollEndRef = useRef<HTMLDivElement>(null)
+  const inputFileRef = useRef<HTMLInputElement>(null)
+  const [showImageListModal, setShowImageListModal] = useState<boolean>(true)
 
   useEffect(() => {
     const scrollToBottom = () => {
@@ -56,7 +68,6 @@ const ImageCropEle = () => {
     scrollToBottom()
   }, [allCropImage, setAllCropImage])
 
-  // console.log(crop)
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader()
@@ -121,8 +132,14 @@ const ImageCropEle = () => {
     }
   }
 
-  const handleSelectCrop = () => {
-    if (previewSrc && cropPx && imgRef.current) {
+  const handleSelectCrop = async () => {
+    if (
+      previewSrc &&
+      cropPx &&
+      imgRef.current &&
+      previewCanvasRef.current &&
+      completedCrop
+    ) {
       setScale(1)
       setRotate(0)
       setImgSrc(previewSrc)
@@ -148,29 +165,32 @@ const ImageCropEle = () => {
       cropPx.x + cropPxSettings.x >= 0 &&
       cropPx.y + cropPxSettings.y >= 0
     ) {
+      let newCropPx: any = ''
       if (cropPxSettings.width > 0 || cropPxSettings.height > 0) {
-        setCropPx({
+        newCropPx = {
           ...cropPx,
           x: cropPx.x + cropPxSettings.x,
           y: cropPx.y + cropPxSettings.y,
           width: cropPxSettings.width,
           height: cropPxSettings.height,
-        })
+        }
+        setCropPx(newCropPx)
       } else {
-        setCropPx({
+        newCropPx = {
           ...cropPx,
           x: cropPx.x + cropPxSettings.x,
           y: cropPx.y + cropPxSettings.y,
-        })
+        }
+        setCropPx(newCropPx)
       }
       await canvasPreview(
         imgRef.current,
         previewCanvasRef.current,
-        cropPx,
+        newCropPx,
         scale,
         rotate
       )
-      setPreviewSrc(await imgPreview(imgRef.current, cropPx, scale, rotate))
+      setPreviewSrc(await imgPreview(imgRef.current, newCropPx, scale, rotate))
     }
   }
 
@@ -186,10 +206,9 @@ const ImageCropEle = () => {
       })
 
       if (!isFound) {
-        setAllCropImage([
-          ...allCropImage,
+        setAllCropImage((prevState) => [
+          ...prevState,
           {
-            id: allCropImage.length + 1,
             imgUrl: previewSrc,
             x: cropPx.x,
             y: cropPx.y,
@@ -211,14 +230,14 @@ const ImageCropEle = () => {
 
     if (!imgFolder) return
 
-    imageData.forEach(function (url) {
+    imageData.forEach(function (url, index) {
       // loading a file and add it in a zip file
       JSZipUtils.getBinaryContent(url.imgUrl, function (err: any, data: any) {
         if (err) {
           throw err // or handle the error
         }
         count++
-        imgFolder.file(`frame-${url.id}.jpeg`, data, { binary: true })
+        imgFolder.file(`frame-${index}.jpeg`, data, { binary: true })
         if (count === imageData.length) {
           zip.generateAsync({ type: 'blob' }).then(function (content) {
             saveAs(content, zipFilename)
@@ -239,51 +258,119 @@ const ImageCropEle = () => {
     setAspect(undefined)
   }
 
+  const handleDeleteSingleImg = (id: number) => {
+    const newAllImageCrop = allCropImage.filter((image, index) => id !== index)
+    setAllCropImage(newAllImageCrop)
+  }
+
   return (
     <div className="w-full">
       {allCropImage?.length !== 0 && (
-        <div className="flex flex-col absolute right-8 space-y-2 max-h-full px-2 bg-white rounded py-2 shadow-lg">
-          <div className="space-x-4">
-            <Button
-              className={'w-max'}
-              onClick={() => downloadAsZip(allCropImage)}
-              disabled={allCropImage.length === 0}
+        <div className="z-10 absolute right-4 fixed">
+          <Button
+            disabled={allCropImage.length === 0}
+            onClick={() => setShowImageListModal(true)}
+            className={`absolute ease-in-out duration-300 ${
+              !showImageListModal
+                ? 'translate-x-0  right-0'
+                : 'translate-x-full -right-10'
+            }`}
+          >
+            <ListBulletIcon className="w-6 h-6 mr-2" />
+            Show All Image
+          </Button>
+          <div
+            className={`flex flex-col relative right-0 space-y-2 max-h-full bg-white rounded py-4 shadow-lg ease-in-out duration-300 ${
+              showImageListModal
+                ? 'translate-x-0'
+                : 'translate-x-full -right-10'
+            }`}
+          >
+            <Cross2Icon
+              onClick={() => setShowImageListModal(false)}
+              className="hover:scale-[1.1] hover:block absolute -top-2 -left-4 cursor-pointer bg-white w-7 h-7 border-2 rounded-full border-gray-400 text-gray-400 hover:border-black hover:text-black"
+            />
+            <ScrollToBottom
+              scrollViewClassName={
+                'flex flex-col space-y-3 max-h-[500px] px-4 py-2  bg-gray-50'
+              }
             >
-              Download All
-            </Button>
-            <Button
-              className={'w-max'}
-              variant={'secondary'}
-              onClick={() => setAllCropImage([])}
-              disabled={allCropImage.length === 0}
-            >
-              Clear All
-            </Button>
-          </div>
-          <div className="flex flex-col space-y-2 max-h-[90%] overflow-y-scroll">
-            {allCropImage.map((img) => (
-              <img src={img.imgUrl} key={img.id} alt="" />
-            ))}
-            <div ref={scrollEndRef} className="block w-2" />
+              {allCropImage.map((img, index) => (
+                <Link href={img.imgUrl} key={index} target={'_blank'} passHref>
+                  <div className="group w-full relative cursor-pointer">
+                    <img
+                      src={img.imgUrl}
+                      alt=""
+                      className="w-full group-hover:scale-[1.02] border-4 rounded"
+                    />
+                    <Cross2Icon
+                      onClick={() => handleDeleteSingleImg(index)}
+                      className="hover:scale-[1.1] invisible group-hover:visible absolute -top-2 -right-2 bg-white w-6 h-6 border-2 rounded-full border-gray-400 text-gray-400 hover:border-black hover:text-black"
+                    />
+                  </div>
+                </Link>
+              ))}
+            </ScrollToBottom>
+            <p className="px-4">Total Frame: {allCropImage.length}</p>
+
+            <div className="space-x-4 px-4">
+              <Button
+                className={'w-max'}
+                onClick={() => downloadAsZip(allCropImage)}
+                disabled={allCropImage.length === 0}
+              >
+                Download All
+              </Button>
+              <Button
+                className={'w-max'}
+                variant={'secondary'}
+                onClick={() => setAllCropImage([])}
+                disabled={allCropImage.length === 0}
+              >
+                Clear All
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="flex space-y-4 flex-col my-4">
-        <div className="space-x-3">
-          <input
-            ref={inputFileRef}
-            type="file"
-            accept="image/*"
-            onChange={onSelectFile}
-          />
-          <Button
-            variant="secondary"
-            disabled={!imgSrc}
-            className="px-5 py-1.5"
-            onClick={handleReset}
-          >
-            Reset
+      <div className="z-0 flex space-y-4 flex-col my-4">
+        <div className="flex flex-row space-x-10 items-center">
+          <div className="flex flex-row space-x-4 items-center">
+            <Button
+              className={tw(`flex justify-center space-x-3 items-center`)}
+            >
+              <UploadIcon className="h-5 w-5" />
+              <p>Choose File</p>
+              <input
+                ref={inputFileRef}
+                type="file"
+                className="absolute cursor-pointer opacity-0"
+                onChange={onSelectFile}
+              />
+            </Button>
+
+            {uploadFiles ? (
+              <div className="flex justify-between">
+                <div className="flex gap-2 py-1 items-center rounded">
+                  <FileTextIcon className="h-8 w-8" />
+                  <div className="flex flex-col">
+                    <p className="whitespace-nowrap">
+                      {textTruncate(uploadFiles[0].name, 20, 10)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {formatBytes(uploadFiles[0].size)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p>No File Choosen</p>
+            )}
+          </div>
+
+          <Button variant="secondary" disabled={!imgSrc} onClick={handleReset}>
+            Reset All
           </Button>
         </div>
         <div className="flex space-x-10 flex-row">
@@ -346,7 +433,6 @@ const ImageCropEle = () => {
                 disabled={!imgSrc}
                 className="px-2 py-1 border-gray-400 border-2"
                 onChangeValue={(_value) => {
-                  console.log(_value)
                   if (_value === '') {
                     setCropPxSettings({
                       ...cropPxSettings,
@@ -445,6 +531,7 @@ const ImageCropEle = () => {
           <ReactCrop
             ruleOfThirds
             crop={cropPx}
+            keepSelection
             onChange={(pxCrop) => {
               setCropPx(pxCrop)
               // setCropPxSettings(pxCrop)

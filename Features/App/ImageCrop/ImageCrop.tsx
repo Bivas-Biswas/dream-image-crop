@@ -21,3 +21,7 @@ ImageCrop.layout = {
   hideFooter: true,
   pageClassName: 'max-w-none',
 }
+
+ImageCrop.seo = {
+  title: 'Image Crop - A Multi Features Image Crop App',
+}
