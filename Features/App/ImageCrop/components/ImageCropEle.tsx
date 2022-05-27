@@ -237,7 +237,7 @@ const ImageCropEle = () => {
           throw err // or handle the error
         }
         count++
-        imgFolder.file(`frame-${index}.jpeg`, data, { binary: true })
+        imgFolder.file(`frame-${index + 1}.jpeg`, data, { binary: true })
         if (count === imageData.length) {
           zip.generateAsync({ type: 'blob' }).then(function (content) {
             saveAs(content, zipFilename)
