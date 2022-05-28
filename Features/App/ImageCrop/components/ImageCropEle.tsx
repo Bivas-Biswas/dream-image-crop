@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import saveAs from 'file-saver'
+import FileSaver from 'file-saver'
 import JSZip from 'jszip'
 // @ts-ignore
 import JSZipUtils from 'jszip-utils'
@@ -251,7 +251,7 @@ const ImageCropEle = () => {
         imgFolder.file(`frame-${index + 1}.jpeg`, data, { binary: true })
         if (count === imageData.length) {
           zip.generateAsync({ type: 'blob' }).then(function (content) {
-            saveAs(content, zipFilename)
+            FileSaver.saveAs(content, zipFilename)
           })
         }
       })
@@ -368,7 +368,8 @@ const ImageCropEle = () => {
             {
               'border-red-300 bg-red-50': isDragReject,
               'border-green-300 bg-green-50': isDragAccept,
-              'border-gray-500': uploadFiles && uploadFiles?.length > 0,
+              'border-indigo-500 bg-indigo-50':
+                uploadFiles && uploadFiles?.length > 0,
             }
           )}
           {...getRootProps()}
