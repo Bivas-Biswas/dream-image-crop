@@ -77,13 +77,6 @@ const ImageCropEle = () => {
       reader.readAsDataURL(e.target.files[0])
       setUploadFiles(e.target.files)
       setAllCropImage([])
-      setCropPxSettings({
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        unit: 'px',
-      })
     }
   }
 
@@ -292,23 +285,31 @@ const ImageCropEle = () => {
             />
             <ScrollToBottom
               scrollViewClassName={
-                'flex flex-col space-y-3 max-h-[500px] px-4 py-2  bg-gray-50'
+                'flex flex-col space-y-3 max-h-[500px] px-4 py-2 bg-gray-50'
               }
             >
               {allCropImage.map((img, index) => (
-                <Link href={img.imgUrl} key={index} target={'_blank'} passHref>
-                  <div className="group w-full relative cursor-pointer">
+                <div
+                  key={index}
+                  className="group w-full relative cursor-pointer"
+                >
+                  <Link
+                    href={img.imgUrl}
+                    target={'_blank'}
+                    passHref
+                    className="z-10"
+                  >
                     <img
                       src={img.imgUrl}
                       alt=""
                       className="w-full group-hover:scale-[1.02] border-4 rounded"
                     />
-                    <Cross2Icon
-                      onClick={() => handleDeleteSingleImg(index)}
-                      className="hover:scale-[1.1] invisible group-hover:visible absolute -top-2 -right-2 bg-white w-6 h-6 border-2 rounded-full border-gray-400 text-gray-400 hover:border-black hover:text-black"
-                    />
-                  </div>
-                </Link>
+                  </Link>
+                  <Cross2Icon
+                    onClick={() => handleDeleteSingleImg(index)}
+                    className="z-20 hover:scale-[1.1] invisible group-hover:visible absolute -top-2 -right-2 bg-white w-6 h-6 border-2 rounded-full border-gray-400 text-gray-400 hover:border-black hover:text-black"
+                  />
+                </div>
               ))}
             </ScrollToBottom>
             <p className="px-4">Total Frame: {allCropImage.length}</p>
