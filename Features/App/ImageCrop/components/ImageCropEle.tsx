@@ -1,8 +1,10 @@
+import classNames from 'classnames'
 import saveAs from 'file-saver'
 import JSZip from 'jszip'
 // @ts-ignore
 import JSZipUtils from 'jszip-utils'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 import ReactCrop, { PixelCrop } from 'react-image-crop'
 import ScrollToBottom from 'react-scroll-to-bottom'
 import { tw } from 'twind/style'
@@ -14,7 +16,6 @@ import {
   UploadIcon,
 } from '@radix-ui/react-icons'
 
-import Link from '../../../../components/Misc/Link'
 import { Button } from '../../../../components/Theme/Button'
 import { Input } from '../../../../components/Theme/Input'
 import useDebounceEffect from '../../../../hooks/useDebounceEffect'
@@ -39,7 +40,7 @@ const initialCropPxSettings: PixelCrop = {
 }
 
 const ImageCropEle = () => {
-  const [imgSrc, setImgSrc] = useState('')
+  const [imgSrc, setImgSrc] = useState<string>()
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const [cropPx, setCropPx] = useState<PixelCrop>()
@@ -52,45 +53,41 @@ const ImageCropEle = () => {
   const [aspect, setAspect] = useState<number | undefined>(undefined)
   const [previewSrc, setPreviewSrc] = useState<string | null>(null)
   const [allCropImage, setAllCropImage] = useState<allImage[]>([])
-  const [uploadFiles, setUploadFiles] = useState<FileList | null>(null)
-  const scrollEndRef = useRef<HTMLDivElement>(null)
+  const [uploadFiles, setUploadFiles] = useState<File[]>()
   const inputFileRef = useRef<HTMLInputElement>(null)
   const [showImageListModal, setShowImageListModal] = useState<boolean>(true)
-
-  useEffect(() => {
-    const scrollToBottom = () => {
-      scrollEndRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest',
-      })
-    }
-    scrollToBottom()
-  }, [allCropImage, setAllCropImage])
-
-  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const reader = new FileReader()
-      reader.addEventListener('load', () =>
-        setImgSrc(reader.result?.toString() || '')
-      )
-      reader.readAsDataURL(e.target.files[0])
-      setUploadFiles(e.target.files)
-      setAllCropImage([])
-    }
-  }
-
-  const handleImageLoad = () => {
-    if (imgRef.current) {
-      setCropPx({
-        x: 0,
-        unit: 'px',
-        y: 0,
-        width: imgRef.current.width / 2,
-        height: imgRef.current.height / 2,
-      })
-    }
-  }
+  const [initialUploadImage, setInitialUploadImage] = useState<{
+    imgSrc?: string
+    files?: File[]
+  } | null>(null)
+  const { getRootProps, getInputProps, open, isDragAccept, isDragReject } =
+    useDropzone({
+      // Disable click and keydown behavior
+      noClick: true,
+      noKeyboard: true,
+      accept: {
+        'image/*': ['.jpeg', '.png'],
+      },
+      onDrop: (acceptedFiles) => {
+        if (acceptedFiles && acceptedFiles.length > 0) {
+          const reader = new FileReader()
+          reader.addEventListener('load', () => {
+            setImgSrc(reader.result?.toString() || '')
+            setInitialUploadImage((preState) => ({
+              ...preState,
+              imgSrc: reader.result?.toString() || '',
+            }))
+          })
+          reader.readAsDataURL(acceptedFiles[0])
+          setUploadFiles(acceptedFiles)
+          setInitialUploadImage({
+            ...initialUploadImage,
+            files: acceptedFiles,
+          })
+          setAllCropImage([])
+        }
+      },
+    })
 
   useDebounceEffect(
     async () => {
@@ -137,13 +134,6 @@ const ImageCropEle = () => {
       setRotate(0)
       setImgSrc(previewSrc)
       setAspect(undefined)
-      setCropPx({
-        ...cropPx,
-        x: 0,
-        y: 0,
-        width: imgRef.current.width / 2,
-        height: imgRef.current.height / 2,
-      })
     }
   }
 
@@ -158,7 +148,7 @@ const ImageCropEle = () => {
       cropPx.x + cropPxSettings.x >= 0 &&
       cropPx.y + cropPxSettings.y >= 0
     ) {
-      let newCropPx: any = ''
+      let newCropPx: PixelCrop
       if (cropPxSettings.width > 0 || cropPxSettings.height > 0) {
         newCropPx = {
           ...cropPx,
@@ -176,6 +166,34 @@ const ImageCropEle = () => {
         }
         setCropPx(newCropPx)
       }
+      /*
+       * why i call here this function
+       * after update the crop settings
+       * we have to update the canvas according to
+       * the new crop settings
+       * also need to update the image src
+       * */
+      await canvasPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        newCropPx,
+        scale,
+        rotate
+      )
+      setPreviewSrc(await imgPreview(imgRef.current, newCropPx, scale, rotate))
+    }
+  }
+
+  const handleImageLoad = async () => {
+    if (imgRef.current && previewCanvasRef.current) {
+      const newCropPx: PixelCrop = {
+        x: imgRef.current.width / 4,
+        unit: 'px',
+        y: imgRef.current.height / 4,
+        width: imgRef.current.width / 2,
+        height: imgRef.current.height / 2,
+      }
+      setCropPx(newCropPx)
       await canvasPreview(
         imgRef.current,
         previewCanvasRef.current,
@@ -243,17 +261,25 @@ const ImageCropEle = () => {
   const handleReset = () => {
     if (inputFileRef.current) inputFileRef.current.value = ''
     setImgSrc('')
-    setUploadFiles(null)
+    setUploadFiles(undefined)
     setCropPxSettings(initialCropPxSettings)
     setAllCropImage([])
     setScale(1)
     setRotate(0)
     setAspect(undefined)
+    setInitialUploadImage(null)
   }
 
   const handleDeleteSingleImg = (id: number) => {
     const newAllImageCrop = allCropImage.filter((image, index) => id !== index)
     setAllCropImage(newAllImageCrop)
+  }
+
+  const handleBackToStart = async () => {
+    if (initialUploadImage) {
+      setImgSrc(initialUploadImage.imgSrc)
+      setUploadFiles(initialUploadImage?.files)
+    }
   }
 
   return (
@@ -293,18 +319,18 @@ const ImageCropEle = () => {
                   key={index}
                   className="group w-full relative cursor-pointer"
                 >
-                  <Link
+                  <a
                     href={img.imgUrl}
                     target={'_blank'}
-                    passHref
                     className="z-10"
+                    rel="noreferrer"
                   >
                     <img
                       src={img.imgUrl}
                       alt=""
                       className="w-full group-hover:scale-[1.02] border-4 rounded"
                     />
-                  </Link>
+                  </a>
                   <Cross2Icon
                     onClick={() => handleDeleteSingleImg(index)}
                     className="z-20 hover:scale-[1.1] invisible group-hover:visible absolute -top-2 -right-2 bg-white w-6 h-6 border-2 rounded-full border-gray-400 text-gray-400 hover:border-black hover:text-black"
@@ -336,43 +362,54 @@ const ImageCropEle = () => {
       )}
 
       <div className="z-0 flex space-y-4 flex-col my-4">
-        <div className="flex flex-row space-x-10 items-center">
-          <div className="flex flex-row space-x-4 items-center">
-            <Button
-              className={tw(`flex justify-center space-x-3 items-center`)}
-            >
-              <UploadIcon className="h-5 w-5" />
-              <p>Choose File</p>
-              <input
-                ref={inputFileRef}
-                type="file"
-                className="absolute cursor-pointer opacity-0"
-                onChange={onSelectFile}
-              />
-            </Button>
+        <div
+          className={classNames(
+            `h-[10rem] justify-center py-4 flex flex-col space-y-4 items-center w-full border-dashed border-2 bg-gray-50 border-gray-300`,
+            {
+              'border-red-300 bg-red-50': isDragReject,
+              'border-green-300 bg-green-50': isDragAccept,
+              'border-gray-500': uploadFiles && uploadFiles?.length > 0,
+            }
+          )}
+          {...getRootProps()}
+        >
+          <input {...getInputProps()} />
 
+          <div>
             {uploadFiles ? (
-              <div className="flex justify-between">
+              <div className="flex">
                 <div className="flex gap-2 py-1 items-center rounded">
-                  <FileTextIcon className="h-8 w-8" />
+                  <FileTextIcon className="h-9 w-9" />
                   <div className="flex flex-col">
                     <p className="whitespace-nowrap">
                       {textTruncate(uploadFiles[0].name, 20, 10)}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-700">
                       {formatBytes(uploadFiles[0].size)}
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <p>No File Choosen</p>
+              <p className="text-xl">Drag and drop files here</p>
             )}
           </div>
-
-          <Button variant="secondary" disabled={!imgSrc} onClick={handleReset}>
-            Reset All
-          </Button>
+          <div className="flex flex-row space-x-5 items-center">
+            <Button
+              className={tw(`flex justify-center space-x-3 items-center`)}
+              onClick={open}
+            >
+              <UploadIcon className="h-5 w-5" />
+              <p>Choose File</p>
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={!imgSrc}
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
+          </div>
         </div>
         <div className="flex space-x-10 flex-row">
           <div className="flex space-y-4 flex-col w-1/2 shadow-lg px-4 py-8">
@@ -511,6 +548,13 @@ const ImageCropEle = () => {
               disabled={!imgSrc}
             >
               Toggle aspect {aspect ? 'off' : 'on'}
+            </Button>
+            <Button
+              onClick={handleBackToStart}
+              variant={'secondary'}
+              disabled={!initialUploadImage}
+            >
+              Back To Start
             </Button>
           </div>
           {cropPx && (
