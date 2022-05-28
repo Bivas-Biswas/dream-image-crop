@@ -364,7 +364,7 @@ const ImageCropEle = () => {
       <div className="z-0 flex space-y-4 flex-col my-4">
         <div
           className={classNames(
-            `h-[10rem] justify-center py-4 flex flex-col space-y-4 items-center w-full border-dashed border-2 bg-gray-50 border-gray-300`,
+            `rounded h-[10rem] justify-center py-4 flex flex-col space-y-4 items-center w-full border-dashed border-2 bg-gray-50 border-gray-300`,
             {
               'border-red-300 bg-red-50': isDragReject,
               'border-green-300 bg-green-50': isDragAccept,
