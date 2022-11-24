@@ -1,1 +1,1 @@
-export { HomePage as default } from './../Features/Home'
+export { ImageCropPage as default } from '../Features/App'
